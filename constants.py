@@ -14,4 +14,7 @@ USER_ID = os.getenv("USER_ID")
 
 ENDPOINT = "https://api.twitter.com/2"
 USERS_ENDPOINT = f"{ENDPOINT}/users"
+# HEADERS = {"Authorization": "Bearer "}
 HEADERS = {"Authorization": f"Bearer {BEARER_TOKEN}"}
+
+RETRY_PERIOD = 7
