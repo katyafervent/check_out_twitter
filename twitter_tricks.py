@@ -1,5 +1,4 @@
 import time
-from datetime import datetime, timedelta
 from http import HTTPStatus
 
 import requests
@@ -9,21 +8,6 @@ from requests.exceptions import RequestException
 from constants import HEADERS, RETRY_PERIOD, USER_ID, USERS_ENDPOINT
 from exceptions import HTTPException, TwitterAPIRequestError
 from utils import get_pretty_json_string
-
-# client = tweepy.Client(
-#     consumer_key=CONSUMER_KEY,
-#     consumer_secret=CONSUMER_SECRET,
-#     bearer_token=BEARER_TOKEN,
-# )
-
-
-# response = client.get_recent_tweets_count(
-#     query='from:saratov -is:retweet lang:ru', start_time='2022-12-22T00:00:00Z'
-# )
-# print(response.data)
-# #  "GET", f"/2/users/me"
-def do_something():
-    pass
 
 
 def get_tweets():
@@ -36,10 +20,13 @@ def get_tweets():
     print(get_pretty_json_string(response.json()))
 
 
-def get_info_about_me():
+def get_info_about_user(user_id):
+    if not user_id:
+        user_id = USER_ID
     try:
-        response = requests.get(f"{USERS_ENDPOINT}/{USER_ID}", headers=HEADERS)
+        response = requests.get(f"{USERS_ENDPOINT}/{user_id}", headers=HEADERS)
     except Exception as error:
+
         raise HTTPException from error
 
     print(get_pretty_json_string(response.json()))
@@ -66,9 +53,10 @@ def check_response(response: dict) -> list:
     if "data" not in response:
         if response["meta"]["result_count"] != 0:
             raise KeyError(
-                "Невалидный формат ответа от API Практикум.Домашка. "
+                "Невалидный формат ответа от API "
                 "Отсутствуют необходимый ключ 'data'"
             )
+        logger.debug("Новых твитов нет")
         return []
 
     if not isinstance(response["data"], list):
@@ -107,10 +95,11 @@ def get_new_tweets(since_id):
 
 
 def print_tweet_text(tweet):
+    print('\n\n')
     print('================================')
     print(tweet["text"])
     print('================================')
-    print('\n\n\n\n')
+    print('\n\n')
 
 
 if __name__ == "__main__":
@@ -126,7 +115,12 @@ if __name__ == "__main__":
                 since_id = new_tweet['id']
 
                 print_tweet_text(new_tweet)
+                logger.info(f"Новый твит {new_tweet['id']} успешно напечатан")
 
-        except Exception:
-            logger.exception("What?!")
-        time.sleep(RETRY_PERIOD)
+        except Exception as error:
+            logger.exception(
+                f"Произошла ошибка во время работы программы: {error}"
+            )
+
+        finally:
+            time.sleep(RETRY_PERIOD)

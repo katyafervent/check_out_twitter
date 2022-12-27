@@ -17,4 +17,4 @@ USERS_ENDPOINT = f"{ENDPOINT}/users"
 # HEADERS = {"Authorization": "Bearer "}
 HEADERS = {"Authorization": f"Bearer {BEARER_TOKEN}"}
 
-RETRY_PERIOD = 7
+RETRY_PERIOD = 15
